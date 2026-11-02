@@ -4,6 +4,7 @@ import type { AiAssistantConfig, Corner, Display, Preset } from "./types";
 const PRESETS: readonly Preset[] = ["ask", "help", "question", "chat", "info"];
 const DISPLAYS: readonly Display[] = ["words", "icon"];
 const CORNERS: readonly Corner[] = ["bottom-right", "bottom-left", "top-right", "top-left"];
+// [ASSUMED] Brand name is at most 40 characters; an omitted name is "Assistant".
 const BRAND_MAX = 40;
 
 export interface NormalizedConfig {

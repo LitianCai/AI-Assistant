@@ -1,5 +1,6 @@
 import { mountAiAssistant, type MountedAssistant } from "./embed";
 
+// [ASSUMED] The preview page uses the demo token "preview-demo-token".
 const DEMO_TOKEN = "preview-demo-token";
 
 function selected(id: string): string {

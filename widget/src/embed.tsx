@@ -49,6 +49,7 @@ export function mountAiAssistant(target?: HTMLElement | null, config?: AiAssista
     ["padding", "0"],
     ["background", "transparent"],
     ["pointer-events", "none"],
+    // [ASSUMED] The widget host uses z-index 2147483000.
     ["z-index", "2147483000"],
   ] as const;
   for (const [property, value] of locked) host.style.setProperty(property, value, "important");

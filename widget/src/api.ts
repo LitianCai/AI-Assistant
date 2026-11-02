@@ -16,6 +16,7 @@ export class CannotRetrieveError extends Error {
   }
 }
 
+// [ASSUMED] HTTP calls time out after 15 seconds.
 export const REQUEST_TIMEOUT_MS = 15_000;
 
 const SAMPLE_QUESTION = "Has order 10482 shipped?";
@@ -38,6 +39,7 @@ interface KeyValueStore {
 }
 
 /** Preview transcript retention: the browser tab session only. */
+// [ASSUMED] Preview history is stored in sessionStorage; the product store is the server.
 const PREVIEW_KEY = "nlw:preview-messages";
 
 function sessionStore(): KeyValueStore {

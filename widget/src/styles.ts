@@ -13,6 +13,7 @@ export const WIDGET_CSS = `
   --assistant: #f3f5f8;
   --radius: 8px;
   color: var(--text);
+  /* [ASSUMED] Font fallbacks after Segoe UI are system-ui, sans-serif. */
   font-family: "Segoe UI", system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.45;
@@ -28,6 +29,7 @@ export const WIDGET_CSS = `
   align-items: center;
   gap: 8px;
   max-width: calc(100vw - 32px);
+  /* [ASSUMED] Launcher cluster z-index is 1. */
   z-index: 1;
 }
 .cluster.bottom-right { right: 16px; bottom: 16px; flex-direction: row; }
@@ -131,6 +133,7 @@ export const WIDGET_CSS = `
   overflow: hidden;
   font-size: 14px;
   line-height: 1.45;
+  /* [ASSUMED] Open panel z-index is 2. */
   z-index: 2;
 }
 .panel.bottom-right { right: 16px; bottom: 16px; }
@@ -302,6 +305,7 @@ export const WIDGET_CSS = `
   outline-offset: 2px;
 }
 
+/* [ASSUMED] Narrow layout starts at 479 px. */
 @media (max-width: 479px) {
   .greet { min-width: 0; }
   .greet-text { white-space: normal; }

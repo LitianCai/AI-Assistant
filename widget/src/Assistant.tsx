@@ -12,10 +12,12 @@ interface UiMessage extends ChatMessage {
   reveal?: boolean;
 }
 
+// [ASSUMED] The greeting bubble appears after 3000 ms.
 const GREETING_DELAY_MS = 3000;
 
 function AnswerText({ text, source }: { text: string; source: string | null }) {
   const words = text.split(/\s+/).filter((word) => word.length > 0);
+  // [ASSUMED] Answers reveal 2 words every 160 ms.
   const [count, setCount] = useState(() => Math.min(2, words.length));
 
   useEffect(() => {

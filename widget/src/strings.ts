@@ -27,6 +27,7 @@ export const STRINGS: Record<Lang, Copy> = {
     send: "Send",
     minimize: "Minimize",
     launcher: { ask: "Ask", help: "Help", question: "?", chat: "Chat", info: "Info" },
+    // [ASSUMED] Non-factual preview reply: "This preview has no live account connection."
     previewLine: "This preview has no live account connection.",
   },
   fr: {
@@ -40,6 +41,7 @@ export const STRINGS: Record<Lang, Copy> = {
     send: "Envoyer",
     minimize: "Réduire",
     launcher: { ask: "Demander", help: "Aide", question: "?", chat: "Discuter", info: "Infos" },
+    // [ASSUMED] Non-factual preview reply: "Cet aperçu n'a aucune connexion à un compte en direct."
     previewLine: "Cet aperçu n'a aucune connexion à un compte en direct.",
   },
   es: {
@@ -53,6 +55,7 @@ export const STRINGS: Record<Lang, Copy> = {
     send: "Enviar",
     minimize: "Minimizar",
     launcher: { ask: "Preguntar", help: "Ayuda", question: "?", chat: "Chatear", info: "Info" },
+    // [ASSUMED] Non-factual preview reply: "Esta vista previa no tiene conexión a una cuenta en vivo."
     previewLine: "Esta vista previa no tiene conexión a una cuenta en vivo.",
   },
 };

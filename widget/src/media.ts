@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 
+// [ASSUMED] Narrow layout starts at 479 px.
 export const NARROW_QUERY = "(max-width: 479px)";
 export const REDUCE_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
