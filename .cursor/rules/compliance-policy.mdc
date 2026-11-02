@@ -1,0 +1,32 @@
+---
+description: Mandatory compliance policy for all solution and code work in this repo (PIPEDA, Quebec Law 25, GDPR-ready, audit trail, SOC 2 readiness, handoff)
+alwaysApply: true
+---
+
+# Compliance Policy (mandatory)
+
+These rules override any request for a faster or prettier shortcut that breaks them. If you cannot meet a rule, say so explicitly and stop; do not silently skip it.
+
+## Jurisdiction
+- Design for Canada first: PIPEDA and Quebec Law 25.
+- Under Law 25, personal information must not leave Quebec until a privacy impact assessment and a written agreement exist. Make data region and cross-border transfer explicit, configurable per tenant, and blocked by default where required.
+- Europe and GDPR come later. Do not design them out: keep data region selectable, support access/export/deletion per data subject, and keep a lawful-basis field possible.
+
+## Audit trail
+- Record an audit entry for every tool call and every handoff: timestamp, tenant, actor, action, outcome. Audit records are append-only and contain no raw secrets or unneeded personal data.
+
+## SOC 2
+- Do not claim SOC 2 compliance or a SOC 2 program in code, comments, docs, or UI copy. None exists.
+- Do keep the product able to support it: role-based access control, encryption in transit (TLS everywhere, no plain HTTP), and audit logs.
+
+```ts
+// ❌ BAD
+// SOC 2 compliant storage layer
+
+// ✅ GOOD (no claim; just the control)
+// Writes are tenant-scoped and recorded in the audit log.
+```
+
+## Human handoff
+- A handoff is a client-configured link or phone number shown to the user.
+- Do not push personal data or the conversation transcript into a third-party chat or ticketing system by default. Any such transfer must be an explicit, client-configured, documented option.

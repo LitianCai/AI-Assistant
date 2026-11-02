@@ -1,0 +1,37 @@
+---
+description: Mandatory security policy for all solution and code work in this repo (tenant isolation, user scope, secrets, outbound resilience, answer grounding, widget safety)
+alwaysApply: true
+---
+
+# Security Policy (mandatory)
+
+Clients are serious businesses. These rules override any request for a faster or prettier shortcut that breaks them. If you cannot meet a rule, say so explicitly and stop; do not silently skip it.
+
+## Tenant and user scope
+- Never let the browser choose the tenant. Resolve tenant on the server from a validated token or API key. Ignore any tenant ID sent in a body, query, header, or widget config.
+- A signed-in portal user may see only their own company's data. Enforce that scope on the server before every tool call to a client API, and pass the scope into the call.
+
+```ts
+// ❌ BAD: tenant and company come from the client
+const tenant = req.body.tenantId;
+await orders.lookup(req.body.companyId, orderNo);
+
+// ✅ GOOD: derived from the verified token, checked before the tool call
+const { tenantId, companyId } = await verifyToken(req.headers.authorization);
+assertCanAccess(user, companyId);
+await orders.lookup({ tenantId, companyId }, orderNo);
+```
+
+## Widget surface
+- Do not accept arbitrary HTML, CSS, or script for the widget launcher or panel. Accept only presets and design tokens validated against an allow-list.
+- Validate brand colors for readable contrast (WCAG AA, 4.5:1 for text) before applying them. Reject or fall back to a safe preset when they fail.
+
+## Secrets
+- Store client API credentials in a secret store. Never put them in source, config committed to git, logs, error messages, or the widget bundle.
+
+## Outbound calls to client APIs
+- Every outbound call needs a timeout and a circuit breaker so a slow or failing client API cannot hang the assistant. On timeout or open circuit, tell the user plainly and offer the handoff.
+
+## Answer grounding
+- Show the source of every answer (which tool or document it came from).
+- Never invent order, price, invoice, or policy facts. If the tool did not return the fact, say it is unavailable.

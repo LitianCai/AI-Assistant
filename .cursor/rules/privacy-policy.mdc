@@ -1,0 +1,34 @@
+---
+description: Mandatory privacy policy for all solution and code work in this repo (data minimization, tenant partitioning, no training, scope limits, logging)
+alwaysApply: true
+---
+
+# Privacy Policy (mandatory)
+
+These rules override any request for a faster or prettier shortcut that breaks them. If you cannot meet a rule, say so explicitly and stop; do not silently skip it.
+
+## Minimize
+- Collect and retain only what the current conversation and tool call need. Set a retention period for every stored field; do not store "just in case".
+
+## Isolate tenants
+- Partition conversation storage by tenant (tenant key on every record and every query, enforced server-side).
+- Never send one tenant's data, prompts, embeddings, caches, or tool results to another tenant. Shared caches and vector indexes must be keyed by tenant.
+
+## No training on customer content
+- Do not use customer content to train or fine-tune any model. There is no written founder decision allowing it; do not add code, flags, or pipelines that do so.
+
+## Scope of the insurance workflow
+- Insurance coverage advice and sensitive personal data (health, financial account numbers, government IDs) are out of the first insurance workflow. Decline and offer the handoff.
+- Distribution answers are limited to the records the signed-in user is allowed to see.
+
+## Logging
+- Log events, not content: conversation started, tool called (name, tenant, outcome, latency), handoff happened.
+- Never log raw secrets, tokens, full payment data, or personal details the event does not need.
+
+```ts
+// ❌ BAD
+log.info("tool call", { tenantId, args, apiKey, response });
+
+// ✅ GOOD
+log.info("tool_called", { tenantId, tool: "order_lookup", outcome: "ok", ms: 412 });
+```

@@ -1,0 +1,37 @@
+---
+description: Mandatory accessibility policy for the widget and all UI work in this repo (WCAG 2.2 AA, launcher, language, motion, keyboard, touch targets)
+alwaysApply: true
+---
+
+# Accessibility Policy (mandatory)
+
+These rules override any request for a faster or prettier shortcut that breaks them. If you cannot meet a rule, say so explicitly and stop; do not silently skip it.
+
+## Standard
+- Target WCAG 2.2 AA for all widget chrome (launcher, panel, controls, messages).
+
+## Launcher
+- The launcher is one line. Show words or an icon, never both.
+- Icon-only mode must still expose the localized word as the accessible name and the tooltip.
+- Launcher and primary controls have a touch target of at least 44 x 44 CSS pixels.
+
+```html
+<!-- ❌ BAD: icon with no name, too small -->
+<button style="width:32px;height:32px"><svg>…</svg></button>
+
+<!-- ✅ GOOD: icon-only, localized name and tooltip, 44px target -->
+<button aria-label="Aide" title="Aide" style="min-width:44px;min-height:44px">
+  <svg aria-hidden="true" focusable="false">…</svg>
+</button>
+```
+
+## Language
+- No language switcher. Resolve language in this order: host setting, then page `lang`, then browser language, then English.
+
+## Motion
+- The landing animation runs once, never opens the panel, and is disabled when `prefers-reduced-motion: reduce` is set.
+
+## Keyboard and layout
+- Every control is reachable and operable by keyboard, with a visible focus indicator. Escape closes or minimizes the panel and returns focus to the launcher.
+- The panel has a minimize control.
+- On a narrow screen the open panel uses the full width.

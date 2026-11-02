@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Northline Supply — Assistant preview</title>
+    <style>
+      :root { color: #1c2430; background: #e7ebf2; font-family: "Segoe UI", sans-serif; }
+      body { margin: 0; }
+      main { max-width: 40rem; padding: 2.5rem 1.5rem 6rem; }
+      h1 { font-size: 1.75rem; margin: 0 0 0.5rem; }
+      p { line-height: 1.5; }
+      .controls { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
+      label { display: inline-flex; flex-direction: column; gap: 0.35rem; font-weight: 600; font-size: 14px; }
+      select { min-height: 44px; min-width: 12rem; font: inherit; padding: 0 0.5rem; background: #fff; }
+      select:focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Northline Supply</h1>
+      <p>Preview of the embeddable assistant. These controls stay outside the widget. The preview adapter is not a live API.</p>
+      <div class="controls">
+        <label>
+          Locale
+          <select id="locale">
+            <option value="">Match page language</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="es">Español</option>
+          </select>
+        </label>
+        <label>
+          Launcher
+          <select id="display">
+            <option value="words">Words</option>
+            <option value="icon">Icon</option>
+          </select>
+        </label>
+        <label>
+          Corner
+          <select id="corner">
+            <option value="bottom-right">Bottom right</option>
+            <option value="bottom-left">Bottom left</option>
+            <option value="top-right">Top right</option>
+            <option value="top-left">Top left</option>
+          </select>
+        </label>
+      </div>
+    </main>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

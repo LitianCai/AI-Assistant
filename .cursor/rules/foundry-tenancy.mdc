@@ -1,0 +1,25 @@
+---
+description: Mandatory: one Azure AI Foundry project for all tenants. The .NET API isolates each tenant.
+alwaysApply: true
+---
+
+# Foundry tenancy
+
+Use one Azure AI Foundry project for every tenant. That project is the shared model and agent runtime. The project does not isolate client companies. The .NET API isolates them.
+
+- Keep this single Foundry project for the demo and for the first clients.
+- Verify the short-lived signed token on every request, and use only that tenant’s prompt and tools.
+- Keep conversation history in the application store, partitioned by tenant.
+- Keep client API secrets in Key Vault, partitioned by tenant.
+
+```csharp
+// ❌ BAD: caller picks a Foundry project or a tenant
+var project = req.Body.FoundryProject;
+
+// ✅ GOOD: one Foundry project; the verified token selects the tenant
+var tenant = await VerifyToken(req.Headers.Authorization);
+var prompt = await store.GetPrompt(tenant.TenantId);
+var secret = await keyVault.GetClientSecret(tenant.TenantId);
+```
+
+Keep enforcing the security, privacy, compliance, and accessibility rules. This rule fixes the Foundry project boundary.
