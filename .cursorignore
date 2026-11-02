@@ -1,0 +1,4 @@
+# Leftover scratch from the record-decision skill.
+# The decision record is documents/ai-assistant-product-strategies.docx.
+documents/_*.py
+documents/_*.txt
