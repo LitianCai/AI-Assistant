@@ -2,8 +2,15 @@ import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from 
 import { isAbortError, messageForFailure } from "./api";
 import type { NormalizedConfig } from "./config";
 import { canShowGreeting, readGreetingFlags, rememberGreetingShown, rememberOpened } from "./greeting";
-import { ChatBubbleIcon, DismissIcon, LogoMark, MinimizeIcon, SendIcon } from "./icons";
+import { ChatBubbleIcon, DismissIcon, LogoMark, MicIcon, MinimizeIcon, SendIcon } from "./icons";
 import { useNarrow, useReducedMotion } from "./media";
+import {
+  browserSpeechRecognition,
+  insertTranscript,
+  startDictation,
+  type DictationSession,
+  type SpeechEngineCtor,
+} from "./speech";
 import { WIDGET_CSS } from "./styles";
 import { stringsFor } from "./strings";
 import type { AssistantApi, ChatMessage, Lang } from "./types";
@@ -81,6 +88,9 @@ export function Assistant({
   const sending = useRef(false);
   const opened = useRef(false);
   const liveRequest = useRef<AbortController | null>(null);
+  const recognitionCtor = useRef<SpeechEngineCtor | null>(browserSpeechRecognition());
+  const dictation = useRef<DictationSession | null>(null);
+  const [listening, setListening] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -125,12 +135,32 @@ export function Assistant({
     }
   }, [open]);
 
+  function stopDictation() {
+    const current = dictation.current;
+    dictation.current = null;
+    current?.stop();
+    setListening(false);
+  }
+
+  useEffect(() => {
+    if (open || !dictation.current) return;
+    stopDictation();
+  }, [open]);
+
+  useEffect(() => {
+    return () => {
+      dictation.current?.stop();
+      dictation.current = null;
+    };
+  }, []);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       event.preventDefault();
       event.stopPropagation();
+      stopDictation();
       pendingFocus.current = true;
       setOpen(false);
     };
@@ -152,11 +182,37 @@ export function Assistant({
   }
 
   function closePanel() {
+    stopDictation();
     pendingFocus.current = true;
     setOpen(false);
   }
 
+  function onDictate() {
+    if (dictation.current) {
+      stopDictation();
+      return;
+    }
+    const Ctor = recognitionCtor.current;
+    if (!Ctor) return;
+    const session = startDictation(Ctor, locale, {
+      onTranscript(transcript) {
+        setDraft((current) => insertTranscript(current, transcript));
+        // [ASSUMED] After a final transcript, focus returns to the message field.
+        inputRef.current?.focus();
+      },
+      onEnd() {
+        dictation.current = null;
+        setListening(false);
+      },
+    });
+    if (!session?.active) return;
+    dictation.current = session;
+    setListening(true);
+  }
+
   async function send(text: string) {
+    // [ASSUMED] Sending stops recognition so a late result is not written into the cleared field.
+    stopDictation();
     const trimmed = text.trim();
     if (!trimmed || sending.current) return;
     sending.current = true;
@@ -194,6 +250,8 @@ export function Assistant({
 
   const launcherWord = copy.launcher[config.preset];
   const iconOnly = config.display === "icon";
+  // [ASSUMED] The microphone control is omitted when the browser has no speech recognition.
+  const speechSupported = recognitionCtor.current !== null;
   const circle = iconOnly || config.preset === "question";
   const theme = { "--primary": config.primaryColor } as CSSProperties;
   const showThread = messages.length > 0 || working;
@@ -246,6 +304,18 @@ export function Assistant({
                 autoCorrect="off"
                 onChange={(event) => setDraft(event.target.value)}
               />
+              {speechSupported ? (
+                <button
+                  type="button"
+                  className="dictate"
+                  aria-label={copy.dictate}
+                  title={copy.dictate}
+                  aria-pressed={listening}
+                  onClick={onDictate}
+                >
+                  <MicIcon />
+                </button>
+              ) : null}
               <button type="submit" aria-label={copy.send} title={copy.send} aria-disabled={working ? true : undefined}>
                 <SendIcon narrow={narrow} />
               </button>

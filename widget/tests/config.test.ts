@@ -45,4 +45,13 @@ describe("preset and color rejection", () => {
     expect(normalizeConfig({ token: "demo", locale: "de" }).locale).toBe("de");
     expect(normalizeConfig({ token: "demo", locale: "  " }).locale).toBeUndefined();
   });
+
+  it("does not accept a speech-to-text config field", () => {
+    const input = { token: "demo", speechToText: true };
+    const config = normalizeConfig(input);
+    expect(config).not.toHaveProperty("speechToText");
+    expect(Object.keys(config).sort()).toEqual(
+      ["apiBaseUrl", "brandName", "corner", "display", "locale", "preset", "primaryColor", "token"].sort(),
+    );
+  });
 });

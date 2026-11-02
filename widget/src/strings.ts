@@ -9,6 +9,8 @@ export interface Copy {
   signIn: string;
   dismiss: string;
   send: string;
+  /** Accessible name and tooltip for the composer microphone. */
+  dictate: string;
   minimize: string;
   launcher: Record<Preset, string>;
   /** Non-factual preview reply. Not a live account status. */
@@ -25,6 +27,7 @@ export const STRINGS: Record<Lang, Copy> = {
     signIn: "Sign in to continue.",
     dismiss: "Dismiss",
     send: "Send",
+    dictate: "Dictate",
     minimize: "Minimize",
     launcher: { ask: "Ask", help: "Help", question: "?", chat: "Chat", info: "Info" },
     // [ASSUMED] Non-factual preview reply: "This preview has no live account connection."
@@ -39,6 +42,7 @@ export const STRINGS: Record<Lang, Copy> = {
     signIn: "Connectez-vous pour continuer.",
     dismiss: "Fermer",
     send: "Envoyer",
+    dictate: "Dicter",
     minimize: "Réduire",
     launcher: { ask: "Demander", help: "Aide", question: "?", chat: "Discuter", info: "Infos" },
     // [ASSUMED] Non-factual preview reply: "Cet aperçu n'a aucune connexion à un compte en direct."
@@ -53,6 +57,7 @@ export const STRINGS: Record<Lang, Copy> = {
     signIn: "Inicie sesión para continuar.",
     dismiss: "Cerrar",
     send: "Enviar",
+    dictate: "Dictar",
     minimize: "Minimizar",
     launcher: { ask: "Preguntar", help: "Ayuda", question: "?", chat: "Chatear", info: "Info" },
     // [ASSUMED] Non-factual preview reply: "Esta vista previa no tiene conexión a una cuenta en vivo."

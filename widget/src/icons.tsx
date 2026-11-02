@@ -56,6 +56,16 @@ export function MinimizeIcon(): ReactElement {
   );
 }
 
+export function MicIcon(): ReactElement {
+  return (
+    <svg className="mic-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+      <rect x="9" y="3.5" width="6" height="10" rx="3" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M7 11.5a5 5 0 0 0 10 0" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M12 16.5V20M9 20h6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function DismissIcon(): ReactElement {
   return (
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">

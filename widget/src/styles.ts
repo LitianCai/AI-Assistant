@@ -291,8 +291,25 @@ export const WIDGET_CSS = `
   color: var(--faint);
   cursor: default;
 }
-.send-icon { display: inline-flex; pointer-events: none; }
-.send-icon svg { display: block; }
+.composer button.dictate {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+.composer button.dictate[aria-pressed="true"] {
+  background: var(--primary);
+  color: var(--on-primary);
+  border-color: transparent;
+}
+.composer button.dictate[aria-pressed="true"] .mic-icon {
+  animation: nlw-mic-pulse 1.2s ease-in-out infinite;
+}
+@keyframes nlw-mic-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+.send-icon, .mic-icon { display: inline-flex; pointer-events: none; }
+.send-icon svg, .mic-icon { display: block; }
 
 .launcher:focus-visible,
 .greet-text:focus-visible,
@@ -329,5 +346,6 @@ export const WIDGET_CSS = `
   .greet.arrive { animation: none; }
   .greet { display: none; }
   .spinner { animation: none; display: none; }
+  .composer button.dictate[aria-pressed="true"] .mic-icon { animation: none; }
 }
 `;
