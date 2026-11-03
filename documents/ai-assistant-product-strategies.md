@@ -30,6 +30,8 @@ The table is the short record of this session. Later sections keep the same labe
 | **Later industries** | **Direction** | Freight brokers and mid-size logistics come later. Healthcare, large banks, and document-heavy legal or knowledge work wait. |
 | **Product shape** | **Direction** | An industry-neutral core, industry packs, a shared widget and core API, and the client’s existing APIs. |
 | **Knowledge sources** | **Direction** | Phase 1 is client APIs, the signed-in user and page, the current conversation, approved pack answers, and a human fallback. Phase 2 is client documents, approved articles, and a cited public-web mode. Tickets, email, licensed feeds, warehouses, direct databases, scraping, and open web search stay out. |
+| **Distribution pain points** | **Direction** | 2 November 2026. Signed-in customer or employee lookups: order status and partial shipments, invoices and open balances, customer-specific price and available stock, credit hold when that person may see it, backorder and delivery dates, product find from catalog attributes, catalog substitutes, and recent orders for that account. Manuals and approved procedures wait for Phase 2. Email order entry and management analytics stay out. |
+| **Distribution demos** | **Open** | Demo applications will use the embeddable widget to cover some of these pains. Which pains, and the sample data, are not chosen. No demo is started. |
 | **Technology** | **Direction** | C#, ASP.NET Core, Azure, Azure AI, and React. The more specific Gemini stack remains the working sketch. |
 | **Gemini schedule** | **Locked** | The 8–10 week plan is not a delivery constraint. It was only Gemini’s plan. |
 | **First release** | **Direction** | One workflow in each of the two industry packs, for one design partner per industry, on one shared platform. |
@@ -98,7 +100,26 @@ The pair below is the plan this discussion asked to write down. Confirmation of 
 
 ### Distribution pack
 
-- **Direction.** The distribution pack covers orders, inventory, price, and invoices. The person chatting may be the distributor’s customer.
+- **Direction.** The distribution pack covers the pain points recorded below. The person chatting may be the distributor’s customer or a signed-in employee of the distributor.
+
+### Distribution pain points
+
+Recorded 2 November 2026. The founder asked to keep the pains from this discussion and the pains from a ChatGPT note that fit this product. The list below is that selection. Demo applications come later.
+
+- **Direction.** Each pain is a factual lookup for a signed-in customer or a signed-in employee. The answer comes from that tenant’s APIs, shows its source, and includes only records that person may see. The assistant does not estimate a fact the API did not return.
+
+1. Order status and partial shipments. The question is whether an order has shipped and which lines are still open.
+2. Invoices. The question is for a copy, what was billed, and which invoices are still open. An open balance is included only when that person may see it. Bank and card numbers stay out.
+3. That customer’s price and available stock. The price is the customer’s price. Available quantity, including stock already allocated when the API returns that figure, comes from the inventory system. The assistant does not estimate stock from a document or from the conversation.
+4. Credit hold. The question is whether this account can order, and only when that person may see the flag.
+5. Backorder, promise date, and delivery status. These are answered when the order or shipping record stores the date or the carrier status.
+6. Product find. A buyer or a sales rep describes the part, or gives a requirement such as material, size, or pressure, and the assistant searches the catalog’s own attributes. It does not treat general knowledge as an engineering approval. A requirement the catalog did not verify is stated as unverified.
+7. Substitutes and accessories. These are answered only when the catalog or ERP already stores that relationship.
+8. Recent orders for this account. A customer uses them to ask for the same goods again. A sales rep uses them to see what the account bought. Showing the prior lines, the current price, and the current availability is in scope. Submitting an order or a quote waits until a person confirms that write. That write is not part of this recorded scope.
+9. Return and shipment problems. Status is answered when the API has the return or the delivery record.
+10. Manuals, datasheets, safety data sheets, and approved procedures, including how a return is processed. These are real pains. They wait for Phase 2 client documents, and the answer cites the passage.
+
+- **Direction.** These items from the ChatGPT note stay out. Email intake of customer purchase orders and supplier mail stays out, because email is not a knowledge source. Management reports, margin trends, forecasts, and “who stopped buying” stay out, because analytics stores are not a source and the assistant does not infer a trend the API did not return. Draft emails, collection letters, and unconfirmed writes, including issuing a credit or changing a credit limit, stay out. The surface stays the embeddable widget. Document search does not move ahead of the API lookups.
 
 ### Insurance pack
 
@@ -138,7 +159,7 @@ These rules keep one core, and they let a new industry arrive as a pack. The wid
 
 - **Direction.** A generic self-serve onboarding studio waits until both industry packs are real, so the configuration model is based on two concrete API shapes.
 
-- **Open.** The first workflow in each pack is still to be chosen. The intended next step is three or four questions a user already asks, and the API call that answers each one. Those questions are not yet listed.
+- **Open.** The distribution questions are listed under Distribution pain points. Which of those pains the first demo applications cover is still open. The first insurance workflow is still to be chosen: three or four factual questions a user already asks, and the API call that answers each one.
 
 - **Open.** Brand, widget visual design, and exact conversation features (history UI, handoff to a human, citations, and so on) remain open.
 
@@ -182,7 +203,7 @@ This list contains only capabilities already implied by the Gemini draft and by 
 
 - **Direction.** From this discussion: an industry pack of system prompt, tool list, field mapping onto the client’s APIs, and safety rules. The widget and the core API stay shared.
 
-- **Direction.** From this discussion: a distribution pack for orders, inventory, price, and invoices. The person chatting may be the distributor’s customer.
+- **Direction.** From this discussion: a distribution pack for the pain points recorded under Distribution pain points. The person chatting may be the distributor’s customer or a signed-in employee.
 
 - **Direction.** From this discussion: an insurance pack for policies, coverage facts, and questions from brokers or agents, starting with factual lookups. Coverage advice and sensitive personal data stay out of that first workflow.
 
@@ -280,7 +301,7 @@ These are the questions the founder still needs to decide. While they stay open,
 
 4. Which design-partner company, if any, is first in distribution, and which is first in insurance?
 
-5. What is the first workflow in the distribution pack: which three or four questions does a user already ask, and which API call answers each one?
+5. Which of the recorded distribution pain points will the first demo applications cover?
 
 6. What is the first workflow in the insurance pack, within factual lookups, using that same question-and-API step?
 
