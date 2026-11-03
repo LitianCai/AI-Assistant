@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Northline Supply</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --text: #1a1a1a;
+      --accent: #1d4ed8;
+      --line: #d1d5db;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #fff;
+      color: var(--text);
+      font: 16px/1.5 "Segoe UI", sans-serif;
+    }
+    a { color: var(--accent); }
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
+    header, main { padding: 16px; }
+    main { max-width: 960px; margin: 0 auto; }
+    h1 { font-size: 1.5rem; margin: 0 0 16px; }
+    h2 { font-size: 1.15rem; margin: 32px 0 8px; }
+    label { display: block; margin-bottom: 8px; }
+    input {
+      display: block;
+      width: 100%;
+      max-width: 320px;
+      min-height: 44px;
+      margin-bottom: 16px;
+      padding: 8px 12px;
+      border: 1px solid var(--text);
+      font: inherit;
+      color: var(--text);
+      background: #fff;
+    }
+    button {
+      min-width: 44px;
+      min-height: 44px;
+      padding: 8px 16px;
+      border: 0;
+      border-radius: 4px;
+      background: var(--accent);
+      color: #fff;
+      font: inherit;
+      cursor: pointer;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    caption { text-align: left; font-weight: 600; margin-bottom: 8px; }
+    th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-weight: 600; }
+    .source { font-weight: 400; margin-left: 8px; }
+    .alert { margin: 0 0 16px; }
+    .brand { margin: 0; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="brand">Northline Supply</p>
+  </header>
+  <main id="content">
+    {% block content %}{% endblock %}
+  </main>
+  {% if show_widget %}
+  {# Preview mount only. The distributor session token stays in the cookie. #}
+  {# [ASSUMED] The built widget file reads process.env.NODE_ENV before it starts. #}
+  <script>window.process = window.process || { env: { NODE_ENV: "production" } };</script>
+  <script src="/assistant/ai-assistant.umd.js"></script>
+  <script>
+    AiAssistant.mountAiAssistant(document.body, {
+      token: "preview-demo-token",
+      apiBaseUrl: "preview",
+      preset: "ask",
+      display: "words",
+      corner: "bottom-right",
+      primaryColor: "#1d4ed8",
+      brandName: "Northline Supply",
+      locale: "en"
+    });
+  </script>
+  {% endif %}
+</body>
+</html>

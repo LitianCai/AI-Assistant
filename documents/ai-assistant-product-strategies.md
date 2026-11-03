@@ -31,7 +31,7 @@ The table is the short record of this session. Later sections keep the same labe
 | **Product shape** | **Direction** | An industry-neutral core, industry packs, a shared widget and core API, and the client’s existing APIs. |
 | **Knowledge sources** | **Direction** | Phase 1 is client APIs, the signed-in user and page, the current conversation, approved pack answers, and a human fallback. Phase 2 is client documents, approved articles, and a cited public-web mode. Tickets, email, licensed feeds, warehouses, direct databases, scraping, and open web search stay out. |
 | **Distribution pain points** | **Direction** | 2 November 2026. Signed-in customer or employee lookups: order status and partial shipments, invoices and open balances, customer-specific price and available stock, credit hold when that person may see it, backorder and delivery dates, product find from catalog attributes, catalog substitutes, and recent orders for that account. Manuals and approved procedures wait for Phase 2. Email order entry and management analytics stay out. |
-| **Distribution demos** | **Open** | Demo applications will use the embeddable widget to cover some of these pains. Which pains, and the sample data, are not chosen. No demo is started. |
+| **Distribution demos** | **Direction** | 2 November 2026. Two local demo hosts and one shared .NET 10 distributor API live under demo-applications: NorthlineSupply.React (full portal), NorthlineSupply.Python (thin server-rendered host), and NorthlineSupply.Api. The sample company is Northline Supply. The signed-in demo customer sees only Apex Machining. The demo covers order status, that customer's price and stock, invoices, and recent orders. The React portal also searches the catalog. The widget is embedded with the existing preview contract. The assistant platform is separate and is not part of these demos. .NET 10 applies to this demo API only. |
 | **Technology** | **Direction** | C#, ASP.NET Core, Azure, Azure AI, and React. The more specific Gemini stack remains the working sketch. |
 | **Gemini schedule** | **Locked** | The 8–10 week plan is not a delivery constraint. It was only Gemini’s plan. |
 | **First release** | **Direction** | One workflow in each of the two industry packs, for one design partner per industry, on one shared platform. |
@@ -104,7 +104,7 @@ The pair below is the plan this discussion asked to write down. Confirmation of 
 
 ### Distribution pain points
 
-Recorded 2 November 2026. The founder asked to keep the pains from this discussion and the pains from a ChatGPT note that fit this product. The list below is that selection. Demo applications come later.
+Recorded 2 November 2026. The founder asked to keep the pains from this discussion and the pains from a ChatGPT note that fit this product. The list below is that selection. The demo applications are recorded under Distribution demos.
 
 - **Direction.** Each pain is a factual lookup for a signed-in customer or a signed-in employee. The answer comes from that tenant’s APIs, shows its source, and includes only records that person may see. The assistant does not estimate a fact the API did not return.
 
@@ -120,6 +120,16 @@ Recorded 2 November 2026. The founder asked to keep the pains from this discussi
 10. Manuals, datasheets, safety data sheets, and approved procedures, including how a return is processed. These are real pains. They wait for Phase 2 client documents, and the answer cites the passage.
 
 - **Direction.** These items from the ChatGPT note stay out. Email intake of customer purchase orders and supplier mail stays out, because email is not a knowledge source. Management reports, margin trends, forecasts, and “who stopped buying” stay out, because analytics stores are not a source and the assistant does not infer a trend the API did not return. Draft emails, collection letters, and unconfirmed writes, including issuing a credit or changing a credit limit, stay out. The surface stays the embeddable widget. Document search does not move ahead of the API lookups.
+
+### Distribution demos
+
+- **Direction.** 2 November 2026. The founder agreed to two local demo hosts and one shared distributor API, under `demo-applications`. `NorthlineSupply.React` is the full portal. `NorthlineSupply.Python` is a thin server-rendered host. `NorthlineSupply.Api` is a .NET 10 WebAPI that stands in for Northline Supply's system of record. .NET 10 here is the demo API only. The product stack direction is unchanged.
+
+- **Direction.** The sample company is Northline Supply. The signed-in demo customer is Riley Chen of Apex Machining, account A-1042. The API binds that person on the server. It ignores any tenant, company, or account id sent by the browser. The customer sees only that account's records.
+
+- **Direction.** The demo covers order status and partial shipments, that customer's price and available stock, invoices and open balances, and recent orders. The React portal also includes catalog search. Order 10482 shipped on 28 Oct, and 2 of 4 lines are still open. The year 2026 on the demo dates is an assumption.
+
+- **Direction.** Each host embeds the existing widget with the current `mountAiAssistant` contract and the in-browser preview adapter. These demos do not add an assistant platform, a new mount field, or conversation storage.
 
 ### Insurance pack
 
@@ -159,7 +169,7 @@ These rules keep one core, and they let a new industry arrive as a pack. The wid
 
 - **Direction.** A generic self-serve onboarding studio waits until both industry packs are real, so the configuration model is based on two concrete API shapes.
 
-- **Open.** The distribution questions are listed under Distribution pain points. Which of those pains the first demo applications cover is still open. The first insurance workflow is still to be chosen: three or four factual questions a user already asks, and the API call that answers each one.
+- **Open.** The first insurance workflow is still to be chosen: three or four factual questions a user already asks, and the API call that answers each one.
 
 - **Open.** Brand, widget visual design, and exact conversation features (history UI, handoff to a human, citations, and so on) remain open.
 
@@ -301,18 +311,16 @@ These are the questions the founder still needs to decide. While they stay open,
 
 4. Which design-partner company, if any, is first in distribution, and which is first in insurance?
 
-5. Which of the recorded distribution pain points will the first demo applications cover?
+5. What is the first workflow in the insurance pack, within factual lookups, using that same question-and-API step?
 
-6. What is the first workflow in the insurance pack, within factual lookups, using that same question-and-API step?
+6. What brand, widget visual design, and conversation features will the product include? History UI, handoff to a human, and citations are among the items still open.
 
-7. What brand, widget visual design, and conversation features will the product include? History UI, handoff to a human, and citations are among the items still open.
+7. Is a design partner in both industries required before any release, or may one partner ship first while the model stays capable of two industries?
 
-8. Is a design partner in both industries required before any release, or may one partner ship first while the model stays capable of two industries?
+8. In what order will the two packs be built, and when will access to each partner’s APIs be available?
 
-9. In what order will the two packs be built, and when will access to each partner’s APIs be available?
+9. Do Phase 2 documents enter before the public-web mode?
 
-10. Do Phase 2 documents enter before the public-web mode?
-
-11. Which sites may a client allow in the public-web mode?
+10. Which sites may a client allow in the public-web mode?
 
 Answering these questions updates this note. Until then, Locked items stand, and Direction items are the plan the work will use.

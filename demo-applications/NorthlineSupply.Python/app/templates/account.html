@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Account</h1>
+<p>Buyer: {{ account.buyerName }}</p>
+<p>{{ account.accountName }}</p>
+<p>Account number: {{ account.accountNumber }}</p>
+{% if account.canOrder %}
+<p>This account can order.</p>
+{% endif %}
+
+<h2>Recent orders</h2>
+<table>
+  <caption>Recent orders <span class="source">Orders API</span></caption>
+  <thead>
+    <tr>
+      <th scope="col">Order</th>
+      <th scope="col">Placed</th>
+      <th scope="col">Status</th>
+      <th scope="col">Shipped</th>
+      <th scope="col">Line count</th>
+      <th scope="col">Open line count</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for order in orders %}
+    <tr>
+      <td>
+        {% if order.href %}
+        <a href="{{ order.href }}">{{ order.orderNumber }}</a>
+        {% else %}
+        {{ order.orderNumber }}
+        {% endif %}
+      </td>
+      <td>{{ order.placedOn }}</td>
+      <td>{{ order.status }}</td>
+      <td>{{ order.shippedOn }}</td>
+      <td>{{ order.lineCount }}</td>
+      <td>{{ order.openLineCount }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Invoices</h2>
+<table>
+  <caption>Invoices <span class="source">Invoices API</span></caption>
+  <thead>
+    <tr>
+      <th scope="col">Invoice</th>
+      <th scope="col">Order</th>
+      <th scope="col">Billed</th>
+      <th scope="col">Status</th>
+      <th scope="col">Total</th>
+      <th scope="col">Balance</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for invoice in invoices %}
+    <tr>
+      <td>{{ invoice.invoiceNumber }}</td>
+      <td>
+        {% if invoice.orderHref %}
+        <a href="{{ invoice.orderHref }}">{{ invoice.orderNumber }}</a>
+        {% else %}
+        {{ invoice.orderNumber }}
+        {% endif %}
+      </td>
+      <td>{{ invoice.billedOn }}</td>
+      <td>{{ invoice.status }}</td>
+      <td>{{ invoice.total }}</td>
+      <td>{{ invoice.balance }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
