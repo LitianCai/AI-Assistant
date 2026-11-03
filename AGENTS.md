@@ -10,7 +10,7 @@ Stop and ask the founder before writing code when the assumption affects securit
 
 ## Current code
 
-The current code is the widget in `widget/` only. Do not start the .NET API, Azure resources, a second industry pack, or an onboarding studio unless the founder asks. Changes in `widget/` follow the `change-widget` skill.
+The widget is in `widget/`. The assistant API shell is in `Assistant.Api/`. It does not call Foundry, store conversations, or resolve tenants yet. Do not add Azure resources, a second industry pack, or an onboarding studio unless the founder asks. Changes in `widget/` follow the `change-widget` skill.
 
 ## Preview and embed
 

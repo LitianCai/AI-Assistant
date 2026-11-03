@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <!-- [ASSUMED] net10.0. This machine has the .NET 10 SDK and no .NET 9 targeting pack. The recorded product direction is still .NET 9. -->
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>0b359786-f738-4e6e-88d5-b563e9bda414</UserSecretsId>
+  </PropertyGroup>
+
+</Project>
