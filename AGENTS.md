@@ -1,6 +1,6 @@
 # AI Assistant
 
-This repo is an embeddable multi-tenant B2B assistant. The founder is the decision maker. Decisions are **Locked**, **Direction**, or **Open**. The record is `documents/ai-assistant-product-strategies.docx`. When the founder locks or changes a decision, use the `record-decision` skill. Read the record; do not re-decide what it already says.
+This repo is an embeddable multi-tenant B2B assistant. The founder is the decision maker. Decisions are **Locked**, **Direction**, or **Open**. The record is `documents/ai-assistant-product-strategies.md`. When the founder locks or changes a decision, use the `record-decision` skill. Read the record; do not re-decide what it already says.
 
 ## Assumptions
 
