@@ -2,7 +2,10 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Assistant.Api.Tests;
@@ -56,23 +59,48 @@ public sealed class AssistantApiTests : IClassFixture<AssistantApiFactory>
 
 public sealed class AssistantApiFactory : WebApplicationFactory<Program>
 {
+    public const string TestSigningKey = "test-signing-key-for-unit-tests-0123456789";
+
     public string FoundryApiKey { get; init; } = "";
+
+    public string EnvironmentName { get; init; } = "Development";
+
+    public Dictionary<string, string?> Settings { get; init; } = [];
 
     public List<string> LogMessages { get; } = [];
 
+    internal FakeChat Chat { get; } = new();
+
+    internal FakeTools Tools { get; } = new();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.UseEnvironment(EnvironmentName);
         builder.ConfigureAppConfiguration((_, config) =>
         {
-            config.AddInMemoryCollection(new Dictionary<string, string?>
+            var values = new Dictionary<string, string?>
             {
                 ["Foundry:ApiKey"] = FoundryApiKey,
-            });
+                ["Auth:SigningKey"] = TestSigningKey,
+            };
+            foreach (var (key, value) in Settings)
+            {
+                values[key] = value;
+            }
+
+            config.AddInMemoryCollection(values);
         });
         builder.ConfigureLogging(logging =>
         {
             logging.ClearProviders();
             logging.AddProvider(new ListLogProvider(LogMessages));
+        });
+        builder.ConfigureTestServices(services =>
+        {
+            services.RemoveAll<IFoundryChat>();
+            services.RemoveAll<IDistributorTools>();
+            services.AddSingleton<IFoundryChat>(Chat);
+            services.AddSingleton<IDistributorTools>(Tools);
         });
     }
 }
@@ -90,7 +118,7 @@ internal sealed class ListLog(string category, List<string> messages) : ILogger
 {
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
 
-    public bool IsEnabled(LogLevel logLevel) => logLevel >= LogLevel.Information && category == "Assistant.Foundry";
+    public bool IsEnabled(LogLevel logLevel) => logLevel >= LogLevel.Information && category.Length > 0;
 
     public void Log<TState>(
         LogLevel logLevel,

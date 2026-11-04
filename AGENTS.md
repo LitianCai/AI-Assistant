@@ -10,7 +10,7 @@ Stop and ask the founder before writing code when the assumption affects securit
 
 ## Current code
 
-The widget is in `widget/`. The assistant API shell is in `Assistant.Api/`. It does not call Foundry, store conversations, or resolve tenants yet. Do not add Azure resources, a second industry pack, or an onboarding studio unless the founder asks. Changes in `widget/` follow the `change-widget` skill.
+The widget is in `widget/`. The assistant API is in `Assistant.Api/`. It verifies the signed token, calls Foundry chat completions for the Northline Supply demo tenant with the Northline demo tools, and keeps threads and the audit log in process memory until a store is chosen. Do not add Azure resources, a second industry pack, or an onboarding studio unless the founder asks. Changes in `widget/` follow the `change-widget` skill.
 
 ## Preview and embed
 
