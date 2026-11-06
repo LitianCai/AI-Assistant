@@ -1,0 +1,8 @@
+---
+description: Cap retries on one problem at five approaches, then stop and ask.
+alwaysApply: true
+---
+
+# Agent retry budget
+
+For one problem, try at most five approaches, and stop at the first one that passes. Before the first change, read the error and the function that produced it, including the functions named above it in the stack. Do not search the rest of the repo. One approach is one small change and one re-run of the same check. An error that appears because of your edit is still the same problem and uses the next approach. If all five fail, stop. State your best guess, mark it as a guess, and ask me before changing or searching further. One environment fix, such as stopping a process that locked a file, is free and does not use an approach.

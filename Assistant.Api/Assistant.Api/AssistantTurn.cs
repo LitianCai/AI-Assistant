@@ -100,7 +100,7 @@ internal sealed class AssistantTurn(
         }
 
         var messages = new List<ChatTurnMessage> { new("system", prompt) };
-        messages.AddRange(history.TakeLast(HistoryMessages).Select(message => new ChatTurnMessage(message.Role, message.Text)));
+        messages.AddRange(WithoutRefusals(history).TakeLast(HistoryMessages).Select(message => new ChatTurnMessage(message.Role, message.Text)));
         messages.Add(new ChatTurnMessage("user", text));
 
         var toolDefinitions = NorthlineClient.IsDemoCustomer(actor);
@@ -184,6 +184,28 @@ internal sealed class AssistantTurn(
         audit.Append(time.GetUtcNow(), actor, "message_completed", "messages", outcome, ms);
         _log.LogInformation("message_completed {TenantId} {Outcome} {Ms}", actor.TenantId, outcome, ms);
         return result;
+    }
+
+    // [ASSUMED] Refused exchanges stay in the saved conversation for display, but are left out of the model's history
+    // so the model does not copy its own refusals.
+    internal static List<StoredMessage> WithoutRefusals(IReadOnlyList<StoredMessage> history)
+    {
+        var kept = new List<StoredMessage>();
+        for (var i = 0; i < history.Count; i++)
+        {
+            if (i + 1 < history.Count
+                && history[i].Role == "user"
+                && history[i + 1].Role == "assistant"
+                && history[i + 1].Text == AssistantText.CannotRetrieve)
+            {
+                i++;
+                continue;
+            }
+
+            kept.Add(history[i]);
+        }
+
+        return kept;
     }
 
     private static int ElapsedMs(long started) =>
