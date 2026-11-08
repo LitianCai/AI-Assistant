@@ -9,7 +9,7 @@ These rules override any request for a faster or prettier shortcut that breaks t
 
 ## Jurisdiction
 - Design for Canada first: PIPEDA and Quebec Law 25.
-- Under Law 25, personal information must not leave Quebec until a privacy impact assessment and a written agreement exist. Make data region and cross-border transfer explicit, configurable per tenant, and blocked by default where required.
+- Make data region and cross-border transfer explicit, configurable per tenant.
 - Europe and GDPR come later. Do not design them out: keep data region selectable, support access/export/deletion per data subject, and keep a lawful-basis field possible.
 
 ## Audit trail

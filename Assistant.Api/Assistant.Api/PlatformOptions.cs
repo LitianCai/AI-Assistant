@@ -15,8 +15,6 @@ internal sealed class DataRegionOptions
     public const string SectionName = "Data";
 
     public string Region { get; set; } = "";
-
-    public bool QuebecTransferApproved { get; set; }
 }
 
 internal sealed class NorthlineOptions
@@ -69,12 +67,6 @@ internal static class RegionGate
         }
 
         if (!string.Equals(data.Region, foundry.Region, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        // Quebec personal information stays blocked until a privacy impact assessment is recorded.
-        if (data.Region.Equals("quebec", StringComparison.OrdinalIgnoreCase) && !data.QuebecTransferApproved)
         {
             return false;
         }

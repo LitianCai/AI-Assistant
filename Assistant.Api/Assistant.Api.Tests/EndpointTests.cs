@@ -150,7 +150,7 @@ public sealed class EndpointTests
     }
 
     [Fact]
-    public async Task Quebec_region_does_not_call_Foundry()
+    public async Task Matching_region_calls_Foundry()
     {
         using var factory = new AssistantApiFactory
         {
@@ -161,8 +161,8 @@ public sealed class EndpointTests
 
         var response = await client.PostAsJsonAsync("/messages", new { text = "What can you do?" });
 
-        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
-        Assert.Empty(factory.Chat.Calls);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotEmpty(factory.Chat.Calls);
     }
 
     [Fact]
