@@ -19,8 +19,12 @@ These rules override any request for a faster or prettier shortcut that breaks t
 <!-- ❌ BAD: icon with no name, too small -->
 <button style="width:32px;height:32px"><svg>…</svg></button>
 
-<!-- ✅ GOOD: icon-only, localized name and tooltip, 44px target -->
-<button aria-label="Aide" title="Aide" style="min-width:44px;min-height:44px">
+<!-- ✅ GOOD: icon-only; accessible name and tooltip are the localized word for the language already resolved; 44px target -->
+<button aria-label="{localized word}" title="{localized word}" style="min-width:44px;min-height:44px">
+  <svg aria-hidden="true" focusable="false">…</svg>
+</button>
+<!-- English resolution uses the English word -->
+<button aria-label="Help" title="Help" style="min-width:44px;min-height:44px">
   <svg aria-hidden="true" focusable="false">…</svg>
 </button>
 ```
