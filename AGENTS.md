@@ -2,6 +2,26 @@
 
 This repo is an embeddable multi-tenant B2B assistant. The founder is the decision maker. Decisions are **Locked**, **Direction**, or **Open**. The record is `documents/ai-assistant-product-strategies.md`. When the founder locks or changes a decision, use the `record-decision` skill. Read the record; do not re-decide what it already says.
 
+## Working principles
+
+These four principles guide how the agent works in this repo. They do not override a Locked decision, the Assumptions section below, or the rules in `.cursor/rules/`.
+
+### Think before coding
+
+Don't assume. Don't hide confusion. Surface tradeoffs. State an assumption before writing code. The Assumptions section says which choices to mark and which to stop and ask about.
+
+### Simplicity first
+
+Write the minimum code that solves the problem. No speculative engineering or unrequested abstractions. Mandatory controls still get written: tenant checks, audit entries, timeouts, and circuit breakers are part of the solution.
+
+### Surgical changes
+
+Touch only what you must. Clean up only your own mess. Avoid unsolicited refactoring.
+
+### Goal-driven execution
+
+Define success criteria, then check them. The limit is in `.cursor/rules/agent-retry-budget.mdc`.
+
 ## Assumptions
 
 A choice the founder did not make is an assumption. Mark it in code with a comment that starts with [ASSUMED] and states the choice in one line. A small local choice (timing, a pixel breakpoint, an internal storage key, a preview-only string) may be implemented and marked.
@@ -10,7 +30,7 @@ Stop and ask the founder before writing code when the assumption affects securit
 
 ## Current code
 
-The widget is in `widget/`. The assistant API is in `Assistant.Api/`. It verifies the signed token, calls Foundry chat completions for the Northline Supply demo tenant with the Northline demo tools, and keeps threads and the audit log in process memory until a store is chosen. Do not add Azure resources, a second industry pack, or an onboarding studio unless the founder asks. Changes in `widget/` follow the `change-widget` skill.
+The widget is in `widget/`. The assistant API is in `Assistant.Api/`. It verifies the signed token, calls Foundry chat completions for the Northline Supply demo tenant with the Northline demo tools, and keeps threads and the audit log in process memory until a store is chosen. Do not add Azure resources, a second industry pack, or an onboarding studio unless the founder asks. Do not create a Key Vault unless the founder asks, and do not store a client secret anywhere else. Changes in `widget/` follow the `change-widget` skill.
 
 ## Preview and embed
 
@@ -60,16 +80,4 @@ Never invent order, price, invoice, or policy facts. The only preview fact is th
 
 ## Rules
 
-Always follow `.cursor/rules/`. Read the files. Do not paste them in place of reading them.
-
-- `security-policy.mdc`
-- `privacy-policy.mdc`
-- `compliance-policy.mdc`
-- `accessibility-policy.mdc`
-- `foundry-tenancy.mdc`
-
-One Foundry project later; isolation stays in the .NET API. Do not claim SOC 2. Canada first (PIPEDA, Quebec Law 25).
-
-## Do not commit
-
-Do not commit `node_modules`, `dist`, secrets, or the temporary helpers `documents/_*.py` and `documents/_*.txt`. Commit only when the founder asks.
+Every file in `.cursor/rules/` applies. Read the files. Do not paste them in place of reading them.
