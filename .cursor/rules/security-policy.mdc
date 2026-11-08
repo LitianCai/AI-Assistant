@@ -33,5 +33,7 @@ await orders.lookup({ tenantId, companyId }, orderNo);
 - Every outbound call needs a timeout and a circuit breaker so a slow or failing client API cannot hang the assistant. On timeout or open circuit, tell the user plainly and offer the handoff.
 
 ## Answer grounding
-- Show the source of every answer (which tool or document it came from).
-- Never invent order, price, invoice, or policy facts. If the tool did not return the fact, say it is unavailable.
+- A factual answer about an order, price, invoice, stock, credit, shipment, catalog item, or policy record shows the tool or document it came from.
+- A greeting, a reply that only says what the assistant can do, and a cannot-retrieve reply do not show a source.
+- Never invent a source.
+- Never invent order, price, invoice, or policy facts. If the tool or document did not return the fact, do not state the fact.
