@@ -1,0 +1,16 @@
+---
+description: Git commands on this repo may run without a per-command approval prompt. Destructive git and non-git commands stay gated.
+alwaysApply: true
+---
+
+# Git policy
+
+Git commands may run without a per-command approval prompt. This applies to standard git operations on this repo: status, diff, log, show, branch, add, commit, push to the existing remote, fetch, pull, checkout, switch, stash, remote, rev-parse. The founder chose this on 4 Nov 2026 to stop repeated prompts.
+
+Limits:
+
+- Never force-push (including `--force` and `--force-with-lease`), never `git reset --hard`, never `git clean`, never `git config` changes, never rewrite history on a shared branch, never create a new remote or a new hosted repo.
+- Only non-git commands still need the usual approval. Auto-approval does not cover them.
+- When the founder has not asked to commit or push in the current request, do not commit or push. Suggest the exact git command and ask them to confirm.
+- When a git command is outside the commands this policy allows to run without a prompt, do not run it. Suggest the approval prompt they would need to give.
+- Do not commit `node_modules`, `dist`, secrets, or `documents/_*.py` and `documents/_*.txt`.
