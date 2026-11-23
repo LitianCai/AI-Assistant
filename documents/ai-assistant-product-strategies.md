@@ -25,8 +25,9 @@ The table is the short record of this session. Later sections keep the same labe
 | **Regions** | **Locked** | Mainly North America and Europe. Start with North America. The founder is in Canada. |
 | **Fees and Europe** | **Open** | Exact fee, packaging, when Europe starts, and the data-residency and GDPR implications. |
 | **Industry breadth** | **Locked** | The assistant can serve all industries over time, and the work starts with at least two industries. |
-| **First industry pair** | **Direction** | Wholesale and industrial distribution, and insurance brokerages and MGAs. |
-| **Pair confirmation** | **Open** | The founder asked for at least two industries and has not yet confirmed this exact pair in their own words. |
+| **First industry pair** | **Locked** | 22 November 2026. Wholesale and industrial distribution, and insurance brokerages and MGAs. |
+| **Pair confirmation** | **Locked** | 22 November 2026. The founder confirmed this exact pair as the first two industries. Shipping and logistics (freight brokers and mid-size logistics) remain a later pack, not the first. |
+| **Target market** | **Locked** | 22 November 2026. Mid-market firms are the target market. |
 | **Later industries** | **Direction** | Freight brokers and mid-size logistics come later. Healthcare, large banks, and document-heavy legal or knowledge work wait. |
 | **Product shape** | **Direction** | An industry-neutral core, industry packs, a shared widget and core API, and the client’s existing APIs. |
 | **Knowledge sources** | **Direction** | Phase 1 is client APIs, the signed-in user and page, the current conversation, approved pack answers, and a human fallback. Phase 2 is client documents, approved articles, and a cited public-web mode. Tickets, email, licensed feeds, warehouses, direct databases, scraping, and open web search stay out. |
@@ -37,8 +38,16 @@ The table is the short record of this session. Later sections keep the same labe
 | **First release** | **Direction** | One workflow in each of the two industry packs, for one design partner per industry, on one shared platform. |
 | **Release order** | **Open** | Whether both design partners come before any release, which companies, their API access, and the order of the two packs. |
 | **Widget** | **Locked** | 31 October 2026. Option 1 is the widget to build. It must include three states besides a successful answer: first open (suggested questions only), waiting (no invented result), and cannot answer (API failure or missing sign-in, no invented facts). A phone or contact line appears only inside a cannot-answer reply when the client configured one. The closed launcher is 44px tall. The panel is not draggable. |
-| **Speech-to-text** | **Locked** | 2 November 2026. Microphone control in the message composer, not on the launcher. Recognition uses only the browser's built-in speech recognition. This product does not receive, store, log, or forward audio or the live transcript to our API, Foundry, or any new backend. The transcript is written into the message field; the user reviews it and sends it. No auto-send. No server fallback. No new mountAiAssistant field. The browser's own speech engine may process the voice outside this product. We do not retain audio. A sent message follows the existing 7-day retention. |
+| **Speech-to-text** | **Locked** | 2 November 2026. Microphone control in the message composer, not on the launcher. Recognition uses only the browser's built-in speech recognition. This product does not receive, store, log, or forward audio or the live transcript to our API, Foundry, or any new backend. The transcript is written into the message field; the user reviews it and sends it. No auto-send. No server fallback. No new mountAiAssistant field. The browser's own speech engine may process the voice outside this product. We do not retain audio. A sent message is not kept for 7 days on the server during the pilot. |
+| **Thread and retention (pilot)** | **Locked** | 8 November 2026. For the pilot, the API does not store the conversation thread. The browser tab holds the thread for the visit and sends the recent turns with the next message. The API does not treat that history as fact. Tool results must come from a fresh tool call in the current request. A refresh may restore the thread from the tab. The thread is gone when the tab closes. The 7-day server retention does not apply during the pilot. The audit log is not part of this change: audit records of every tool call and handoff must be append-only and stored outside the API process before a paying client goes live. Where the thread is stored in production is a separate founder decision and must be recorded then. Sending recent turns on the message request is a change to the public embed contract. Do not implement that field, and do not remove the in-memory store, until the founder asks for the code. |
 | **Azure AI Foundry** | **Locked** | One Foundry project for all tenants. The API isolates each tenant. |
+| **Quebec residency** | **Locked** | 8 November 2026. Quebec personal information stays in Quebec until a privacy impact assessment and a written agreement exist for that tenant. Microsoft's Azure region name for Quebec is canadaeast. A tenant-level flag, default blocked, is resolved only on the server and records that the assessment and agreement exist. When the flag is set, that tenant may use a region outside Quebec. The browser, request body, query, header, and widget config cannot set the flag. A region in Quebec (canadaeast) needs no flag. The mapping from the jurisdiction Quebec to the Azure region canadaeast lives in one region catalog. Do not compare those two strings ad hoc in call sites. |
+| **Unknown jurisdiction (fail closed)** | **Locked** | 22 November 2026. Fail closed to canadaeast unless the server-only flag is set. Recognized name canada-other. See the Locked detail bullet. |
+| **Token-signing secret** | **Locked** | 16 November 2026. Each tenant has its own token-signing secret, stored in Key Vault. The API looks up that tenant's secret name from the tenant record and fetches the secret only to verify the widget token. One shared Auth:SigningKey for every tenant is not the production design. The current code still has the single config key. |
+| **Token-signing method (first release)** | **Locked** | 22 November 2026. The first release supports only the vendor-generated shared secret (HS256), generated by us and shown once in our admin console, in the way Zendesk JWT SSO works. It is never emailed, it can be rotated, and the customer stores it in their own secret store. The customer's own key pair with a JWKS URL is not in the first release. The 16 November per-tenant Key Vault decision remains the production design. |
+| **Later token-secret delivery** | **Open** | How the per-tenant token-signing secret reaches the customer's backend. For the first release, the vendor-generated secret shown once in the admin console is the delivery method. The longer-term delivery method for later releases remains Open. Options still include a one-time secure handover of the secret, or a public-key pair in which the customer keeps the private key. |
+| **Token method per tenant** | **Open** | Whether the token method is configurable per tenant (server-side tenant record) after the first release is Open. |
+| **Project documents** | **Locked** | All project documents use Markdown (.md) for now. Formatting can be made more polished later. |
 
 *Detail and the session reasoning follow.*
 
@@ -63,6 +72,10 @@ There is an existing draft, documents/ai-assistant-architecture-gemini.md, saved
 The draft describes the embeddable assistant above. It also sketches a stack and a roadmap. Those sketches move forward in this note only with the status given in Technical direction and Delivery strategy.
 
 The Gemini roadmap described a solo MVP of 8–10 weeks ending in an onboarding dashboard. The founder later stated that this 8–10 week plan is not a delivery constraint. It was only Gemini’s plan. That statement is Locked and is repeated under Technical direction. The onboarding dashboard is placed later, under Delivery strategy.
+
+### Project documents
+
+- **Locked.** All project documents use Markdown (.md) for now. Formatting can be made more polished later.
 
 ## Market
 
@@ -92,11 +105,11 @@ The assistant is meant to serve many industries over time. The first design star
 
 ### The current pair
 
-The pair below is the plan this discussion asked to write down. Confirmation of the exact pair remains a separate, open decision.
+The pair below was recommended in the discussion. The founder confirmed it on 22 November 2026.
 
-- **Direction.** The first two industries in the current plan are (1) wholesale and industrial distribution and (2) insurance brokerages and MGAs. This pair was recommended in the discussion and is carried as the current plan. The founder asked for at least two industries and asked for this plan to be written down. The founder has not yet named a different pair.
+- **Locked.** 22 November 2026. The first two industries are (1) wholesale and industrial distribution and (2) insurance brokerages and MGAs. Shipping and logistics (freight brokers and mid-size logistics) remain a later pack, not the first.
 
-- **Open.** The founder has not confirmed the exact pair in their own words beyond “at least two industries” and accepting the recommendation path. The pair can be changed.
+- **Locked.** 22 November 2026. Pair confirmation. The founder confirmed this exact pair, through a structured question, as the first two industries.
 
 ### Distribution pack
 
@@ -139,7 +152,7 @@ Recorded 2 November 2026. The founder asked to keep the pains from this discussi
 
 ### Why this pair
 
-- **Direction.** The two API shapes and vocabularies differ, so a core that serves both stays industry-neutral. Mid-market firms in both already have a portal and a system of record, can pay a real fee, and do not have an internal team whose job is to build an AI platform. Both are reachable from Canada. Europe has the same industry pattern later.
+- **Locked.** 22 November 2026. Mid-market firms are the target market. The two API shapes and vocabularies differ, so a core that serves both stays industry-neutral. Mid-market firms in both industries already have a portal and a system of record. Both are reachable from Canada.
 
 ### Later industries
 
@@ -177,7 +190,7 @@ These rules keep one core, and they let a new industry arrive as a pack. The wid
 
 ## Widget decisions
 
-- **Locked.** A page refresh restores the latest thread for the same signed-in person. The server loads it from the verified token. Messages are deleted 7 days after the last message.
+- **Locked.** 8 November 2026. Thread and retention (pilot). For the pilot, the API does not store the conversation thread. The browser tab holds the thread for the visit and sends the recent turns with the next message. The API does not treat that history as fact. Tool results must come from a fresh tool call in the current request. A refresh may restore the thread from the tab. The thread is gone when the tab closes. The 7-day server retention does not apply during the pilot. The audit log is not part of this change: audit records of every tool call and handoff must be append-only and stored outside the API process before a paying client goes live. Where the thread is stored in production is a separate founder decision and must be recorded then. Sending recent turns on the message request is a change to the public embed contract. Do not implement that field, and do not remove the in-memory store, until the founder asks for the code.
 
 - **Locked.** Attention is a greeting bubble, “How can I help you?”, shown once beside the closed launcher. It stays until dismissed or the assistant is opened. The scale pulse is not used.
 
@@ -187,7 +200,7 @@ These rules keep one core, and they let a new industry arrive as a pack. The wid
 
 - **Locked.** First-build chrome copy is fixed: greeting “How can I help you?”, placeholder “Type a message”, suggested questions “What can you do?”, “Help me find something”, and “I have a question”. Cannot-answer copy: “I can’t retrieve that right now.” and “Sign in to continue.” Client editing of those strings is later.
 
-- **Locked.** 2 November 2026. Speech-to-text is a widget composer control. A microphone control sits in the message composer, not on the launcher. The launcher still shows words or an icon, never both. Recognition uses only the browser's built-in speech recognition. This product does not receive, store, log, or forward audio or the live transcript to our API, Foundry, or any new backend. The transcript is written into the existing message field. The user reviews it and sends it with the existing send path. The product does not auto-send. Language follows the widget's existing resolution order: host setting, then page lang, then browser language, then English. Language is limited to English, French, and Spanish. There is no language switcher. When the browser has no speech recognition, the product does not offer a server fallback. The control is hidden or disabled with an accessible explanation. There is no new mountAiAssistant config field. The public embed contract stays as it is. The browser's own speech engine may process the voice outside this product. Our retention rule is unchanged: we do not retain audio. The resulting message, once the user sends it, follows the existing 7-day message retention. The control has an accessible name, a tooltip, and a 44px target. It is keyboard operable, with a visible focus indicator. It respects prefers-reduced-motion. Strings are in English, French, and Spanish.
+- **Locked.** 2 November 2026. Speech-to-text is a widget composer control. A microphone control sits in the message composer, not on the launcher. The launcher still shows words or an icon, never both. Recognition uses only the browser's built-in speech recognition. This product does not receive, store, log, or forward audio or the live transcript to our API, Foundry, or any new backend. The transcript is written into the existing message field. The user reviews it and sends it with the existing send path. The product does not auto-send. Language follows the widget's existing resolution order: host setting, then page lang, then browser language, then English. Language is limited to English, French, and Spanish. There is no language switcher. When the browser has no speech recognition, the product does not offer a server fallback. The control is hidden or disabled with an accessible explanation. There is no new mountAiAssistant config field. The public embed contract stays as it is. The browser's own speech engine may process the voice outside this product. Our retention rule is unchanged: we do not retain audio. The resulting message, once the user sends it, is not kept for 7 days on the server during the pilot. The control has an accessible name, a tooltip, and a 44px target. It is keyboard operable, with a visible focus indicator. It respects prefers-reduced-motion. Strings are in English, French, and Spanish.
 
 ## Features and capabilities
 
@@ -246,6 +259,18 @@ The Gemini roadmap described a solo MVP of 8–10 weeks ending in an onboarding 
 - **Locked.** The 8–10 week Gemini schedule is not a delivery constraint. It was only Gemini’s plan.
 
 - **Locked.** 31 October 2026. Use one Azure AI Foundry project for multiple tenants. That project is the shared model and agent runtime. It does not isolate client companies. The .NET API isolates them: it verifies the short-lived signed token, and each request uses only that tenant’s prompt and tools. Conversation history and client API secrets stay in the application store and Key Vault, partitioned by tenant. A separate Foundry project per client is not the demo setup and not the setup for the first clients.
+
+- **Locked.** 8 November 2026. Quebec personal information stays in Quebec until a privacy impact assessment and a written agreement exist for that tenant. Microsoft's Azure region name for Quebec is canadaeast. A tenant-level flag, default blocked, is resolved only on the server and records that the assessment and agreement exist. When the flag is set, that tenant may use a region outside Quebec. The browser, request body, query, header, and widget config cannot set the flag. A region in Quebec (canadaeast) needs no flag. The mapping from the jurisdiction Quebec to the Azure region canadaeast lives in one region catalog. Do not compare those two strings ad hoc in call sites.
+
+- **Locked.** 22 November 2026. Unknown jurisdiction (fail closed). A tenant whose jurisdiction is blank or not in the region catalog is blocked from any data region other than canadaeast, unless the server-only tenant flag already described in the Quebec residency Locked decision is set. This is fail-closed: an unknown or blank jurisdiction is treated like Quebec until it is set correctly. The browser, request body, query, header, and widget config cannot set the jurisdiction or the flag. The founder confirmed this through a structured question. A recognized non-Quebec jurisdiction name, canada-other, was confirmed by the founder for non-Quebec Canadian tenants with no residency region.
+
+- **Locked.** 16 November 2026. Each tenant has its own token-signing secret, stored in Key Vault. The API looks up that tenant's secret name from the tenant record and fetches the secret only to verify the widget token. One shared Auth:SigningKey for every tenant is not the production design. The current code still has the single config key.
+
+- **Locked.** 22 November 2026. Token-signing method for the first release. The first release supports only the vendor-generated shared secret (HS256), in the way Zendesk JWT SSO works. We generate it and show it once in our admin console. It is never emailed, it can be rotated, and the customer stores it in their own secret store. The customer's own key pair with a JWKS URL is not in the first release. The 16 November per-tenant Key Vault decision above is unchanged and remains the production design.
+
+- **Open.** How the per-tenant token-signing secret reaches the customer's backend. For the first release, the vendor-generated secret shown once in the admin console is the delivery method. The longer-term delivery method for later releases remains Open. Options still include a one-time secure handover of the secret, or a public-key pair in which the customer keeps the private key.
+
+- **Open.** Whether the token method is configurable per tenant (server-side tenant record) after the first release is Open.
 
 ## Delivery strategy
 
@@ -307,7 +332,7 @@ These are the questions the founder still needs to decide. While they stay open,
 
 2. What data-residency and GDPR implications apply for Europe?
 
-3. Does the founder confirm wholesale and industrial distribution together with insurance brokerages and MGAs as the first two industries, or name a different pair?
+3. Resolved, Locked on 22 November 2026: the founder confirmed wholesale and industrial distribution together with insurance brokerages and MGAs as the first two industries. Shipping and logistics remain a later pack.
 
 4. Which design-partner company, if any, is first in distribution, and which is first in insurance?
 
@@ -322,5 +347,9 @@ These are the questions the founder still needs to decide. While they stay open,
 9. Do Phase 2 documents enter before the public-web mode?
 
 10. Which sites may a client allow in the public-web mode?
+
+11. How will the per-tenant token-signing secret reach the customer's backend in later releases? For the first release, the vendor-generated secret shown once in the admin console is the delivery method.
+
+12. Will the token method be configurable per tenant (server-side tenant record) after the first release?
 
 Answering these questions updates this note. Until then, Locked items stand, and Direction items are the plan the work will use.

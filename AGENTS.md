@@ -71,7 +71,7 @@ The browser never chooses the tenant.
 - Cannot-answer: "I can't retrieve that right now." and "Sign in to continue."
 - No Call us in the chrome.
 - Languages: EN, FR, and ES. No language switcher inside the widget.
-- Refresh restores the signed-in thread. Retain messages for 7 days.
+- For the pilot, the API does not store the conversation thread. The browser tab holds the thread for the visit and sends the recent turns with the next message. The API does not treat that history as fact. Tool results must come from a fresh tool call in the current request. A refresh may restore the thread from the tab. The thread is gone when the tab closes. The 7-day server retention does not apply during the pilot. The audit log is not part of this change: audit records of every tool call and handoff must be append-only and stored outside the API process before a paying client goes live. Where the thread is stored in production is a separate founder decision and must be recorded then. Sending recent turns on the message request is a change to the public embed contract. Do not implement that field, and do not remove the in-memory store, until the founder asks for the code. Until that code change, the code still keeps the thread in process memory.
 - Client editing of the greeting, suggestions, and placeholder is later.
 
 ## Facts

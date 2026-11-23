@@ -9,7 +9,7 @@ These rules override any request for a faster or prettier shortcut that breaks t
 
 ## Jurisdiction
 - Design for Canada first: PIPEDA and Quebec Law 25.
-- Make data region and cross-border transfer explicit, configurable per tenant.
+- Quebec personal information stays in Quebec until a privacy impact assessment and a written agreement exist for that tenant. Microsoft's Azure region name for Quebec is canadaeast. A tenant-level flag, default blocked, is resolved only on the server and records that the assessment and agreement exist. When the flag is set, that tenant may use a region outside Quebec. The browser, request body, query, header, and widget config cannot set the flag. A region in Quebec (canadaeast) needs no flag. The mapping from the jurisdiction Quebec to the Azure region canadaeast lives in one region catalog. Do not compare those two strings ad hoc in call sites. Make data region and cross-border transfer explicit, configurable per tenant.
 - Europe and GDPR come later. Do not design them out: keep data region selectable, support access/export/deletion per data subject, and keep a lawful-basis field possible.
 
 ## Audit trail
