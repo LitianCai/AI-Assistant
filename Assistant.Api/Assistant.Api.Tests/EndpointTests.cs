@@ -155,7 +155,7 @@ public sealed class EndpointTests
         using var factory = new AssistantApiFactory
         {
             FoundryApiKey = ApiKey,
-            Settings = { ["Data:Region"] = "quebec", ["Foundry:Region"] = "quebec" },
+            Settings = { ["Data:Region"] = "canadaeast", ["Foundry:Region"] = "canadaeast" },
         };
         using var client = Client(factory, TokenFor("riley.chen"));
 
@@ -178,6 +178,143 @@ public sealed class EndpointTests
 
         Assert.Empty(factory.Chat.Calls);
         Assert.Empty(sameRegion.Chat.Calls);
+    }
+
+    [Fact]
+    public async Task Quebec_jurisdiction_on_canadaeast_calls_Foundry_when_the_flag_is_false()
+    {
+        using var factory = new AssistantApiFactory
+        {
+            FoundryApiKey = ApiKey,
+            Settings =
+            {
+                ["Data:Region"] = "canadaeast",
+                ["Foundry:Region"] = "canadaeast",
+                ["Tenants:Entries:0:Id"] = "northline-supply",
+                ["Tenants:Entries:0:Jurisdiction"] = "quebec",
+                ["Tenants:Entries:0:QuebecTransferApproved"] = "false",
+            },
+        };
+        using var client = Client(factory, TokenFor("riley.chen"));
+
+        var response = await client.PostAsJsonAsync("/messages", new { text = "What can you do?" });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotEmpty(factory.Chat.Calls);
+    }
+
+    [Fact]
+    public async Task Quebec_jurisdiction_outside_Quebec_does_not_call_Foundry_when_the_flag_is_false()
+    {
+        using var factory = new AssistantApiFactory
+        {
+            FoundryApiKey = ApiKey,
+            Settings =
+            {
+                ["Data:Region"] = "canadacentral",
+                ["Foundry:Region"] = "canadacentral",
+                ["Tenants:Entries:0:Id"] = "northline-supply",
+                ["Tenants:Entries:0:Jurisdiction"] = "quebec",
+                ["Tenants:Entries:0:QuebecTransferApproved"] = "false",
+            },
+        };
+        using var client = Client(factory, TokenFor("riley.chen"));
+
+        var response = await client.PostAsJsonAsync("/messages", new { text = "Hi", quebecTransferApproved = true });
+
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+        Assert.Empty(factory.Chat.Calls);
+    }
+
+    [Fact]
+    public async Task Quebec_transfer_flag_calls_Foundry_when_the_regions_match()
+    {
+        using var factory = new AssistantApiFactory
+        {
+            FoundryApiKey = ApiKey,
+            Settings =
+            {
+                ["Data:Region"] = "canadacentral",
+                ["Foundry:Region"] = "canadacentral",
+                ["Tenants:Entries:0:Id"] = "northline-supply",
+                ["Tenants:Entries:0:Jurisdiction"] = "quebec",
+                ["Tenants:Entries:0:QuebecTransferApproved"] = "true",
+            },
+        };
+        using var client = Client(factory, TokenFor("riley.chen"));
+
+        var response = await client.PostAsJsonAsync("/messages", new { text = "What can you do?" });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotEmpty(factory.Chat.Calls);
+    }
+
+    [Fact]
+    public async Task Blank_jurisdiction_outside_Quebec_does_not_call_Foundry()
+    {
+        var (status, factory) = await SendWithJurisdiction("", "canadacentral", approved: false);
+        using (factory)
+        {
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, status);
+            Assert.Empty(factory.Chat.Calls);
+        }
+    }
+
+    [Theory]
+    [InlineData("QC")]
+    [InlineData("Québec")]
+    public async Task Unrecognized_jurisdiction_outside_Quebec_does_not_call_Foundry(string jurisdiction)
+    {
+        var (status, factory) = await SendWithJurisdiction(jurisdiction, "canadacentral", approved: false);
+        using (factory)
+        {
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, status);
+            Assert.Empty(factory.Chat.Calls);
+        }
+    }
+
+    [Fact]
+    public async Task Recognized_non_Quebec_jurisdiction_calls_Foundry_outside_Quebec()
+    {
+        var (status, factory) = await SendWithJurisdiction("canada-other", "canadacentral", approved: false);
+        using (factory)
+        {
+            Assert.Equal(HttpStatusCode.OK, status);
+            Assert.NotEmpty(factory.Chat.Calls);
+        }
+    }
+
+    [Fact]
+    public async Task Unrecognized_jurisdiction_with_the_server_flag_calls_Foundry_outside_Quebec()
+    {
+        var (status, factory) = await SendWithJurisdiction("QC", "canadacentral", approved: true);
+        using (factory)
+        {
+            Assert.Equal(HttpStatusCode.OK, status);
+            Assert.NotEmpty(factory.Chat.Calls);
+        }
+    }
+
+    private static async Task<(HttpStatusCode Status, AssistantApiFactory Factory)> SendWithJurisdiction(
+        string jurisdiction,
+        string region,
+        bool approved)
+    {
+        var factory = new AssistantApiFactory
+        {
+            FoundryApiKey = ApiKey,
+            Settings =
+            {
+                ["Data:Region"] = region,
+                ["Foundry:Region"] = region,
+                ["Tenants:Entries:0:Id"] = "northline-supply",
+                ["Tenants:Entries:0:Jurisdiction"] = jurisdiction,
+                ["Tenants:Entries:0:QuebecTransferApproved"] = approved ? "true" : "false",
+            },
+        };
+        using var client = Client(factory, TokenFor("riley.chen"));
+        var response = await client.PostAsJsonAsync("/messages", new { text = "What can you do?" });
+        return (response.StatusCode, factory);
     }
 
     [Fact]

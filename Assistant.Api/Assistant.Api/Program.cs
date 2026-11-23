@@ -19,6 +19,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 builder.Services.Configure<FoundryOptions>(builder.Configuration.GetSection(FoundryOptions.SectionName));
 builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection(AuthOptions.SectionName));
 builder.Services.Configure<DataRegionOptions>(builder.Configuration.GetSection(DataRegionOptions.SectionName));
+builder.Services.Configure<TenantsOptions>(builder.Configuration.GetSection(TenantsOptions.SectionName));
 builder.Services.Configure<NorthlineOptions>(builder.Configuration.GetSection(NorthlineOptions.SectionName));
 
 builder.Services.AddSingleton(TimeProvider.System);
@@ -192,7 +193,7 @@ internal static class BearerAuth
 
 internal static class MessageBody
 {
-    // Only the text field is read. Any tenant, account, or locale field in the body is ignored.
+    // Only the text field is read. Any tenant, account, locale, or Quebec transfer flag in the body is ignored.
     internal static async Task<string?> ReadTextAsync(HttpRequest request)
     {
         if (request.ContentLength is > 16_384)

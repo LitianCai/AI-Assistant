@@ -71,6 +71,7 @@ internal sealed class AssistantTurn(
     AuditLog audit,
     IOptions<FoundryOptions> foundryOptions,
     IOptions<DataRegionOptions> dataOptions,
+    IOptions<TenantsOptions> tenantOptions,
     TimeProvider time,
     ILoggerFactory loggers)
 {
@@ -87,7 +88,7 @@ internal sealed class AssistantTurn(
         var prompt = TenantPrompts.For(actor.TenantId);
 
         // A blocked region or tenant never sends the user text to Foundry.
-        if (!foundry.CanCall || prompt is null || !RegionGate.Allows(dataOptions.Value, foundry, actor.TenantId))
+        if (!foundry.CanCall || prompt is null || !RegionGate.Allows(dataOptions.Value, foundry, actor.TenantId, tenantOptions.Value))
         {
             return Complete(actor, started, "blocked", new TurnResult(StatusCodes.Status503ServiceUnavailable, AssistantText.CannotRetrieve, null));
         }
