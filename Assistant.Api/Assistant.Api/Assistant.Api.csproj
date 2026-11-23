@@ -8,4 +8,9 @@
     <UserSecretsId>0b359786-f738-4e6e-88d5-b563e9bda414</UserSecretsId>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.23.0" />
+  </ItemGroup>
+
 </Project>

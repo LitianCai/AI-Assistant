@@ -1,6 +1,7 @@
-using System.Security.Cryptography;
-using System.Text;
+using System.Security.Claims;
 using System.Text.Json;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Assistant.Api;
 
@@ -13,6 +14,12 @@ internal sealed record AccessToken(
 
 internal static class TokenCodec
 {
+    private static readonly JsonWebTokenHandler Handler = new()
+    {
+        MapInboundClaims = false,
+        SetDefaultTimesOnTokenCreation = false,
+    };
+
     internal static string Issue(
         string tenantId,
         string subject,
@@ -31,8 +38,7 @@ internal static class TokenCodec
         DateTimeOffset issuedAt,
         DateTimeOffset expiresAt)
     {
-        var header = Base64Url("""{"alg":"HS256","typ":"JWT"}"""u8.ToArray());
-        var payloadJson = JsonSerializer.Serialize(new Dictionary<string, object>
+        var payload = JsonSerializer.Serialize(new Dictionary<string, object>
         {
             ["tid"] = tenantId,
             ["sub"] = subject,
@@ -43,9 +49,8 @@ internal static class TokenCodec
             ["iat"] = issuedAt.ToUnixTimeSeconds(),
             ["exp"] = expiresAt.ToUnixTimeSeconds(),
         });
-        var payload = Base64Url(Encoding.UTF8.GetBytes(payloadJson));
-        var signature = Base64Url(Sign(key, header, payload));
-        return header + "." + payload + "." + signature;
+        var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
+        return Handler.CreateToken(payload, credentials);
     }
 
     internal static bool TryRead(string token, byte[] key, DateTimeOffset now, out AccessToken access)
@@ -56,132 +61,111 @@ internal static class TokenCodec
             return false;
         }
 
-        var parts = token.Split('.');
-        if (parts.Length != 3 || parts.Any(part => part.Length == 0))
-        {
-            return false;
-        }
-
-        var headerBytes = FromBase64Url(parts[0]);
-        var payloadBytes = FromBase64Url(parts[1]);
-        var signature = FromBase64Url(parts[2]);
-        if (headerBytes is null || payloadBytes is null || signature is null)
-        {
-            return false;
-        }
-
-        var expected = Sign(key, parts[0], parts[1]);
-        if (signature.Length != expected.Length || !CryptographicOperations.FixedTimeEquals(signature, expected))
-        {
-            return false;
-        }
-
+        TokenValidationResult result;
         try
         {
-            using var header = JsonDocument.Parse(headerBytes);
-            if (header.RootElement.ValueKind != JsonValueKind.Object
-                || !header.RootElement.TryGetProperty("alg", out var algorithm)
-                || algorithm.ValueKind != JsonValueKind.String
-                || algorithm.GetString() != "HS256")
-            {
-                return false;
-            }
-
-            using var payload = JsonDocument.Parse(payloadBytes);
-            var root = payload.RootElement;
-            if (root.ValueKind != JsonValueKind.Object
-                || !TryClaim(root, "tid", out var tenantId)
-                || !TryClaim(root, "sub", out var subject)
-                || !TryClaim(root, "rel", out var relationship)
-                || (relationship != "customer" && relationship != "employee")
-                || !TryClaim(root, "acct", out var accountNumber)
-                || !TryClaim(root, "iss", out var issuer)
-                || issuer != DemoActor.Issuer
-                || !TryClaim(root, "aud", out var audience)
-                || audience != DemoActor.Audience
-                || !TryUnix(root, "iat", out var issuedSeconds)
-                || !TryUnix(root, "exp", out var expiresSeconds))
-            {
-                return false;
-            }
-
-            var issued = DateTimeOffset.FromUnixTimeSeconds(issuedSeconds);
-            var expires = DateTimeOffset.FromUnixTimeSeconds(expiresSeconds);
-            if (expires <= issued || expires - issued > TokenLimits.Lifetime)
-            {
-                return false;
-            }
-
-            if (issued - TokenLimits.ClockSkew > now || expires + TokenLimits.ClockSkew < now)
-            {
-                return false;
-            }
-
-            access = new AccessToken(tenantId, subject, relationship, accountNumber, expires);
-            return true;
+            // [ASSUMED] ValidateTokenAsync is waited here so TryRead stays synchronous for the bearer check.
+            result = Handler.ValidateTokenAsync(token, Parameters(key, now)).GetAwaiter().GetResult();
         }
-        catch (JsonException)
-        {
-            return false;
-        }
-    }
-
-    private static bool TryClaim(JsonElement root, string name, out string value)
-    {
-        value = "";
-        if (!root.TryGetProperty(name, out var property) || property.ValueKind != JsonValueKind.String)
+        catch (Exception ex) when (ex is JsonException or SecurityTokenException or ArgumentException)
         {
             return false;
         }
 
-        var text = property.GetString();
-        if (string.IsNullOrWhiteSpace(text))
+        if (!result.IsValid
+            || result.SecurityToken is not JsonWebToken jwt
+            || !HeaderIsHs256(jwt)
+            || !TryClaim(jwt, "tid", out var tenantId)
+            || !TryClaim(jwt, "sub", out var subject)
+            || !TryClaim(jwt, "rel", out var relationship)
+            || (relationship != "customer" && relationship != "employee")
+            || !TryClaim(jwt, "acct", out var accountNumber)
+            || !TryClaim(jwt, "iss", out var issuer)
+            || issuer != DemoActor.Issuer
+            || !TryClaim(jwt, "aud", out var audience)
+            || audience != DemoActor.Audience
+            || !TryUnix(jwt, "exp", out var expires))
         {
             return false;
         }
 
-        value = text.Trim();
+        access = new AccessToken(tenantId, subject, relationship, accountNumber, expires);
         return true;
     }
 
-    private static bool TryUnix(JsonElement root, string name, out long value)
+    private static TokenValidationParameters Parameters(byte[] key, DateTimeOffset now) =>
+        new()
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidAlgorithms = [SecurityAlgorithms.HmacSha256],
+            RequireSignedTokens = true,
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            RequireExpirationTime = true,
+            ClockSkew = TokenLimits.ClockSkew,
+            LogTokenId = false,
+            LogValidationExceptions = false,
+            LifetimeValidator = (notBefore, expires, securityToken, validationParameters) =>
+                securityToken is JsonWebToken jwt && LifetimeValid(jwt, now, validationParameters.ClockSkew),
+        };
+
+    private static bool HeaderIsHs256(JsonWebToken jwt) =>
+        jwt.TryGetHeaderValue<string>("alg", out var algorithm)
+        && string.Equals(algorithm, SecurityAlgorithms.HmacSha256, StringComparison.Ordinal);
+
+    private static bool LifetimeValid(JsonWebToken jwt, DateTimeOffset now, TimeSpan clockSkew)
     {
-        value = 0;
-        if (!root.TryGetProperty(name, out var property) || property.ValueKind != JsonValueKind.Number)
+        if (!TryUnix(jwt, "iat", out var issued) || !TryUnix(jwt, "exp", out var expires))
         {
             return false;
         }
 
-        return property.TryGetInt64(out value);
+        if (expires <= issued || expires - issued > TokenLimits.Lifetime)
+        {
+            return false;
+        }
+
+        return issued - clockSkew <= now && expires + clockSkew >= now;
     }
 
-    private static byte[] Sign(byte[] key, string header, string payload) =>
-        HMACSHA256.HashData(key, Encoding.ASCII.GetBytes(header + "." + payload));
-
-    private static string Base64Url(byte[] data) =>
-        Convert.ToBase64String(data).TrimEnd('=').Replace('+', '-').Replace('/', '_');
-
-    private static byte[]? FromBase64Url(string text)
+    private static bool TryClaim(JsonWebToken jwt, string name, out string value)
     {
-        var padded = text.Replace('-', '+').Replace('_', '/');
-        var remainder = padded.Length % 4;
-        if (remainder == 1)
+        value = "";
+        if (!jwt.TryGetClaim(name, out var claim) || claim.ValueType != ClaimValueTypes.String)
         {
-            return null;
+            return false;
         }
 
-        if (remainder > 0)
+        if (string.IsNullOrWhiteSpace(claim.Value))
         {
-            padded = padded.PadRight(padded.Length + (4 - remainder), '=');
+            return false;
         }
 
-        try
-        {
-            return Convert.FromBase64String(padded);
-        }
-        catch (FormatException)
-        {
-            return null;
-        }
+        value = claim.Value.Trim();
+        return true;
     }
+
+    private static bool TryUnix(JsonWebToken jwt, string name, out DateTimeOffset value)
+    {
+        value = default;
+        if (!jwt.TryGetClaim(name, out var claim) || !IsJsonInteger(claim.ValueType))
+        {
+            return false;
+        }
+
+        if (!long.TryParse(claim.Value, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var seconds))
+        {
+            return false;
+        }
+
+        value = DateTimeOffset.FromUnixTimeSeconds(seconds);
+        return true;
+    }
+
+    private static bool IsJsonInteger(string valueType) =>
+        valueType == ClaimValueTypes.Integer
+        || valueType == ClaimValueTypes.Integer32
+        || valueType == ClaimValueTypes.Integer64;
 }
