@@ -5,7 +5,11 @@ using Microsoft.Extensions.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 // [ASSUMED] Local development listens on https://localhost:7091 so it does not share port 5080 with NorthlineSupply.Api.
-builder.WebHost.UseUrls("https://localhost:7091");
+// The published container binds that same HTTPS port on all interfaces. The certificate is supplied when the container starts and is not stored in the image.
+var listenUrl = string.Equals(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"), "true", StringComparison.Ordinal)
+    ? "https://+:7091"
+    : "https://localhost:7091";
+builder.WebHost.UseUrls(listenUrl);
 builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
 builder.Logging.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
 

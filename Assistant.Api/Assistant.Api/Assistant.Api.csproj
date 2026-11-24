@@ -6,7 +6,18 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>0b359786-f738-4e6e-88d5-b563e9bda414</UserSecretsId>
+    <!-- [ASSUMED] Local image name assistant-api. ContainerRegistry is unset so publish loads the image into the local Docker daemon and does not push to a registry. -->
+    <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
+    <ContainerRepository>assistant-api</ContainerRepository>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- [ASSUMED] HTTPS port 7091, the same port as local development. Empty HTTP_PORTS overrides the base image port 8080 so the image does not serve plain HTTP. The TLS certificate is supplied when the container starts and is not stored in the image. -->
+    <ContainerEnvironmentVariable Include="ASPNETCORE_URLS" Value="https://+:7091" />
+    <ContainerEnvironmentVariable Include="ASPNETCORE_HTTP_PORTS" Value="" />
+    <ContainerEnvironmentVariable Include="ASPNETCORE_HTTPS_PORTS" Value="7091" />
+    <ContainerPort Include="7091" Type="tcp" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
