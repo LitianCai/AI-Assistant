@@ -1,0 +1,52 @@
+# [ASSUMED] The Microsoft-hosted image is ubuntu-latest.
+# [ASSUMED] The .NET SDK version is 10.0.x, the band the project targets.
+# [ASSUMED] No image tag is set, so the SDK default tag latest is used. The image name stays assistant-api from the project.
+# [ASSUMED] Pull requests do not start this pipeline. It runs when master is pushed.
+# [ASSUMED] ACR_LOGIN_SERVER, ACR_USERNAME, and ACR_PASSWORD are pipeline variables. An unset variable is empty or left unexpanded, and either case skips the push.
+# The project publishes HTTPS on port 7091. This pipeline does not change that port.
+# This pipeline builds the image. It does not deploy.
+
+trigger:
+  branches:
+    include:
+      - master
+
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: UseDotNet@2
+    displayName: Install the .NET 10 SDK
+    inputs:
+      packageType: sdk
+      version: 10.0.x
+
+  - bash: |
+      set -euo pipefail
+      # Build the unset-variable marker at runtime so this script does not expand it.
+      not_set() {
+        local value="$1"
+        local name="$2"
+        local dollar='$'
+        local marker="${dollar}(${name})"
+        [ -z "${value}" ] || [ "${value}" = "${marker}" ]
+      }
+      publish=(dotnet publish --os linux --arch x64 /t:PublishContainer)
+      if not_set "${ACR_LOGIN_SERVER-}" ACR_LOGIN_SERVER; then
+        echo "ACR login server is not set. Building the image and skipping the registry push."
+      elif not_set "${ACR_USERNAME-}" ACR_USERNAME || not_set "${ACR_PASSWORD-}" ACR_PASSWORD; then
+        echo "ACR username or password is not set. Building the image and skipping the registry push."
+      else
+        printf '%s' "${ACR_PASSWORD}" | docker login "${ACR_LOGIN_SERVER}" --username "${ACR_USERNAME}" --password-stdin
+        publish+=("-p:ContainerRegistry=${ACR_LOGIN_SERVER}")
+        echo "Building the image and pushing it to the configured registry."
+      fi
+      "${publish[@]}"
+    displayName: Publish the container
+    workingDirectory: Assistant.Api/Assistant.Api
+    env:
+      ACR_LOGIN_SERVER: $(ACR_LOGIN_SERVER)
+      ACR_USERNAME: $(ACR_USERNAME)
+      ACR_PASSWORD: $(ACR_PASSWORD)

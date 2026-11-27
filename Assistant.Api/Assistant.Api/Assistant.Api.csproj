@@ -6,6 +6,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>0b359786-f738-4e6e-88d5-b563e9bda414</UserSecretsId>
+    <!-- [ASSUMED] Local image name assistant-api. ContainerRegistry is unset so publish loads the image into the local Docker daemon and does not push to a registry. -->
+    <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
+    <ContainerRepository>assistant-api</ContainerRepository>
   </PropertyGroup>
 
   <ItemGroup>

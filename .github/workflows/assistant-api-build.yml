@@ -1,0 +1,58 @@
+# [ASSUMED] Workflow name assistant-api-build. It runs on a push to master, on a pull request that changes Assistant.Api or this file, and on a manual run.
+# [ASSUMED] No image tag is set, so the SDK default tag latest is used. The image name stays assistant-api from the project.
+# [ASSUMED] The login server is the repository variable ACR_LOGIN_SERVER. The username and password are the secrets ACR_USERNAME and ACR_PASSWORD.
+# [ASSUMED] The image is pushed only on master, and only when the login server, username, and password are all set. Any other run builds the image and skips the push.
+
+name: assistant-api-build
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "Assistant.Api/**"
+      - ".github/workflows/assistant-api-build.yml"
+  pull_request:
+    paths:
+      - "Assistant.Api/**"
+      - ".github/workflows/assistant-api-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Assistant.Api container
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          # The project targets net10.0.
+          dotnet-version: "10.0.x"
+
+      - name: Publish the container
+        working-directory: Assistant.Api/Assistant.Api
+        env:
+          ACR_LOGIN_SERVER: ${{ vars.ACR_LOGIN_SERVER }}
+          ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+          ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          publish=(dotnet publish --os linux --arch x64 /t:PublishContainer)
+          if [ "${GITHUB_REF}" != "refs/heads/master" ]; then
+            echo "This run is not on master. Building the image and skipping the registry push."
+          elif [ -z "${ACR_LOGIN_SERVER}" ]; then
+            echo "ACR login server is not set. Building the image and skipping the registry push."
+          elif [ -z "${ACR_USERNAME}" ] || [ -z "${ACR_PASSWORD}" ]; then
+            echo "ACR username or password is not set. Building the image and skipping the registry push."
+          else
+            printf '%s' "${ACR_PASSWORD}" | docker login "${ACR_LOGIN_SERVER}" --username "${ACR_USERNAME}" --password-stdin
+            publish+=("-p:ContainerRegistry=${ACR_LOGIN_SERVER}")
+            echo "Building the image and pushing it to the configured registry."
+          fi
+          "${publish[@]}"
