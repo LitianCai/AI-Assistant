@@ -10,7 +10,14 @@ Status as of 22 November 2026. Items are what must be true before the first payi
 
 2. **The audit log survives a restart.** Tool calls and handoffs are recorded in memory only. Done means an append-only store that holds no secrets and no unneeded personal data.
 3. **Real sign-in.** The only token today comes from a development-only endpoint that mints one demo customer. Done means a client's portal issues short-lived signed tokens for its own users, and the API checks them for that tenant only.
-4. **A second tenant, proven isolated.** The API is wired to the Northline demo tenant and its tools. Done means a second tenant has its own prompt, tools, and data scope, and a test shows it cannot see Northline's data.
+4. **Next task: a second tenant, proven isolated.** The API is wired to the Northline demo tenant and its tools. Done means a second tenant has its own prompt, tools, and data scope, and a test shows it cannot see Northline's data.
+   - Open questions for the founder before any code (tenancy and security, so `AGENTS.md` requires a decision first):
+     - Is the tenant named "SouthSupplyLine" or "Southline Supply"? The repo has `demo-applications/SouthlineSupply.*`.
+     - Which client API does its tool calls use? The Southline demo API, or another?
+     - Which jurisdiction applies: canada-other, or Quebec (which needs the residency flag and canadaeast)?
+     - How is the tenant resolved from the signed token, and where is its prompt, tool list, and data scope stored?
+     - Does the per-tenant token-signing secret wait for the Key Vault store approval (item 5), or use the first-release HS256 secret?
+     - Does the tenant use the same single Foundry project (`foundry-tenancy.mdc`)?
 5. **A place for client API secrets.** The Foundry key and the token signing key sit in local developer secrets. The 16 November 2026 Locked decision is that each tenant's token-signing secret is stored in Key Vault as the production design, and the founder still has to approve the store. Done means the founder approves the store, partitioned by tenant, and no secret appears in source, logs, or the widget. Do not create a Key Vault until the founder asks.
 6. **Quebec residency on the remote.** The Locked rule (8 November 2026), the region catalog, and the tenant flag exist only as uncommitted local work. origin/master still has the commit that removed the transfer block. Done means the local work is reviewed, tested, committed, and pushed. This blocks any Quebec client in the first sales.
 7. **Hosting in Canada.** The API listens on localhost and only local demo sites can call it. Done means the API and the embed script are hosted in Canada on a hostname the founder controls, with TLS everywhere, and only each client's real sites can call the API.
