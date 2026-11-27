@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "registryName": {
+      "value": "glendevaiassistantacr"
+    },
+    "environmentName": {
+      "value": "managedEnvironment-FreeResourceGro-bf23"
+    },
+    "location": {
+      "value": "canadacentral"
+    },
+    "containerAppName": {
+      "value": "container-app-e4af-assistant-ai"
+    },
+    "image": {
+      "value": "mcr.microsoft.com/k8se/quickstart:latest"
+    },
+    "targetPort": {
+      "value": 80
+    },
+    "minReplicas": {
+      "value": 1
+    },
+    "maxReplicas": {
+      "value": 1
+    }
+  }
+}

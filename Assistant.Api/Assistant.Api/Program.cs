@@ -5,7 +5,16 @@ using Microsoft.Extensions.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 // [ASSUMED] Local development listens on https://localhost:7091 so it does not share port 5080 with NorthlineSupply.Api.
-builder.WebHost.UseUrls("https://localhost:7091");
+// [ASSUMED] In a container, listen on all interfaces at http://+:8080. Container Apps ingress terminates TLS and forwards to this port.
+// DOTNET_RUNNING_IN_CONTAINER is set by the official .NET images. Local runs leave it unset.
+if (string.Equals(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"), "true", StringComparison.OrdinalIgnoreCase))
+{
+    builder.WebHost.UseUrls("http://+:8080");
+}
+else
+{
+    builder.WebHost.UseUrls("https://localhost:7091");
+}
 builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
 builder.Logging.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
 
